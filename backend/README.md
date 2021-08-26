@@ -7,6 +7,13 @@
 
 2. **Virtual Enviornment** - We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organaized. Instructions for setting up a virual enviornment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
 
+### Setting up a VENV
+py -m pip install --user virtualenv  (if not already installed)
+```bash
+# from project backend directory.
+> py -m venv env   (create a virtual environment in windows)
+> venv\Scripts\activate  (Activate venv)
+```
 
 3. **PIP Dependencies** - Once you have your virtual environment setup and running, install dependencies by naviging to the `/backend` directory and running:
 ```bash
@@ -25,8 +32,35 @@ This will install all of the required packages we selected within the `requireme
 ### Database Setup
 With Postgres running, restore a database using the trivia.psql file provided. From the backend folder in terminal run:
 ```bash
-psql trivia < trivia.psql
+psql trivia student
+
+\i trivia.psql
 ```
+
+# Start the server
+pg_ctl -D "C:\Program Files\PostgreSQL\13\data" start
+
+### Start backend server..
+```bash
+from the `/backend/` directory.
+for windows!!!____
+> $env:FLASK_APP = "flaskr"
+> $env:FLASK_ENV = "development"
+> flask run
+```
+
+## fixes to get server to run  - upgrade to latest versions
+```bash
+pip install pip-upgrader
+pip-upgrade
+
+# SQLAlchemy 1.3 and earlier showed a deprecation warning but still accepted it.  The URI should start with postgresql:// instead of postgres://
+database_path = "postgresql://{}:{}@{}/{}".format(
+    "student", "student", "localhost:5432", database_name
+)
+
+```
+
 
 ### Running the server
 
