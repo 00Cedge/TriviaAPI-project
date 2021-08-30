@@ -48,9 +48,12 @@ def create_app(test_config=None):
   @app.route('/categories')
   def get_categories():
     categories = Category.query.order_by(Category.type).all()
-    categories_formatted = {category.id: category.type for category in categories}
-    print(categories_formatted)
-    return categories_formatted
+    if len(categories) == 0:
+      abort (404)
+    return jsonify ({
+      "success": True,
+      "categories": {category.id: category.type for category in categories}
+    })
 
   '''
   @TODO: 
@@ -75,15 +78,13 @@ def create_app(test_config=None):
     if len(current_questions) == 0:
       abort(404)
 
-    return jsonify(
-      {
+    return jsonify({
         "success": True,
         "questions": current_questions,
         "total_questions": len(Question.query.all()),
-        "current_category": "all",
+        "current_category": None,
         "categories": categories_formatted,
-      }
-      )
+      })
 
   '''
   @TODO: 
@@ -93,28 +94,22 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
-  # @app.route('/questions/<int:question_id>', methods=['DELETE'])
-  # def delete_question():
-  #   try:
-      
-  #   selection = Question.query.order_by(Question.id).all()
-  #   categories = Category.query.order_by(Category.type).all()
-  #   categories_formatted = {category.id: category.type for category in categories}
-  #   # categories = Category.query.order_by(Category.type).all()
-  #   current_questions = paginate_questions(request, selection)
-  #   print(current_questions)
-  #   if len(current_questions) == 0:
-  #     abort(404)
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
+  def delete_question(question_id):
+    try:
+      question = Question.query.filter(Question.id == question_id).one_or_none()
 
-  #   return jsonify(
-  #     {
-  #       "success": True,
-  #       "questions": current_questions,
-  #       "total_questions": len(Question.query.all()),
-  #       "current_category": "all",
-  #       "categories": categories_formatted,
-  #     }
-  #     )
+      if question is None:
+        abort(404)
+
+      question.delete()
+
+      return jsonify({
+          "success": True,
+          "deleted": question_id,
+        })
+    except:
+      abort(422)
 
   '''
   @TODO: 
@@ -126,6 +121,32 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+
+  @app.route('/questions', methods=['POST'])
+  def create_question():
+    body = request.get_json()
+
+    new_question = body.get('question', None)
+    new_difficulty = body.get('difficulty', None)
+    new_answer = body.get('answer', None)
+    new_category = body.get('category', None)
+
+    try:
+      question = Question (
+          question=new_question, 
+          answer=new_answer, 
+          difficulty=new_difficulty, 
+          category=new_category
+        )
+      question.insert()
+
+      return jsonify({
+          "success": True,
+          "created": question.id,
+        })
+
+    except:
+      abort(422)
 
   '''
   @TODO: 

@@ -49,6 +49,16 @@ for windows!!!____
 > flask run
 ```
 
+```
+What movie earned Tom Hanks his third straight Oscar nomination, in 1996?
+
+Difficulty: 4
+
+Answer: Apollo 13
+```
+
+
+
 ## fixes to get server to run  - upgrade to latest versions
 ```bash
 pip install pip-upgrader
