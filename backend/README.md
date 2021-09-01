@@ -46,7 +46,7 @@ from the `/backend/` directory.
 for windows!!!____
 > $env:FLASK_APP = "flaskr"
 > $env:FLASK_ENV = "development"
-> flask run
+> flask run --reload
 ```
 
 ```

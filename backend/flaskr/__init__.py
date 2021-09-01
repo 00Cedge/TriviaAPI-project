@@ -74,7 +74,7 @@ def create_app(test_config=None):
     categories = Category.query.order_by(Category.type).all()
     categories_formatted = {category.id: category.type for category in categories}
     current_questions = paginate_questions(request, selection)
-    print(current_questions)
+    # print(current_questions)
     if len(current_questions) == 0:
       abort(404)
 
@@ -126,27 +126,30 @@ def create_app(test_config=None):
   def create_question():
     body = request.get_json()
 
-    new_question = body.get('question', None)
-    new_difficulty = body.get('difficulty', None)
-    new_answer = body.get('answer', None)
-    new_category = body.get('category', None)
+    if ('question' in body and 'answer' in body and 'difficulty' in body and 'category' in body):
+      print('question answer etc. submitted')
 
-    try:
-      question = Question (
-          question=new_question, 
-          answer=new_answer, 
-          difficulty=new_difficulty, 
-          category=new_category
-        )
-      question.insert()
+      new_question = body.get('question', None)
+      new_difficulty = body.get('difficulty', None)
+      new_answer = body.get('answer', None)
+      new_category = body.get('category', None)
 
-      return jsonify({
-          "success": True,
-          "created": question.id,
-        })
+      try:
+        question = Question (
+            question=new_question, 
+            answer=new_answer, 
+            difficulty=new_difficulty, 
+            category=new_category
+          )
+        question.insert()
 
-    except:
-      abort(422)
+        return jsonify({
+            "success": True,
+            "created": question.id,
+          })
+
+      except:
+        abort(422)
 
   '''
   @TODO: 
@@ -159,6 +162,25 @@ def create_app(test_config=None):
   Try using the word "title" to start. 
   '''
 
+  @app.route('/questions/search', methods = ['POST'])
+  def search_questions():  
+    body = request.get_json()
+    search_query = body.get('searchTerm', '')
+    print(search_query)
+    # if search term exists then return search results
+    if search_query != "":
+      print('search performed')
+      search_results = Question.query.filter(Question.question.ilike(f'%{search_query}%')).all()
+
+      return jsonify({
+          'success': True,
+          'questions': [question.format() for question in search_results],
+          'total_questions': len(search_results),
+          'current_category': None
+      })
+    else:
+      abort(404)
+
   '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
@@ -167,7 +189,23 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:category_id>/questions', methods = ['GET'])
+  def questions_by_category(category_id):
 
+    selection = Question.query.filter(Question.category==category_id).all()
+    # categories = Category.query.order_by(Category.type).all()
+    # categories_formatted = {category.id: category.type for category in categories}
+    current_questions = paginate_questions(request, selection)  
+
+    try:
+      return jsonify({
+          "success": True,
+          "questions": current_questions,
+          "total_questions": len(selection),
+          "current_category": category_id,
+        })
+    except:
+      abort(404)
 
   '''
   @TODO: 
@@ -188,5 +226,3 @@ def create_app(test_config=None):
   '''
   
   return app
-
-    
